@@ -2,7 +2,7 @@ from string import Template
 
 def k8s_template():
     template_string =  """apiVersion: v1
-kind: Pod
+kind: Job
 metadata:
   name: $name
 spec:

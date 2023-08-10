@@ -70,3 +70,7 @@ kuberun -n mypod -m 2Gi -t 2 --verbose bash -c "echo 'Hello from Kubernetes!'"
 The kuberun tool supports configuration using an INI file. 
 By default, it uses the file `~/.config/kuberun.ini` as the configuration file. 
 You can customize the behavior of the tool using this configuration.
+
+## Authors
+
+Andrea Telatin, Nabil-Fareed Alikhan
