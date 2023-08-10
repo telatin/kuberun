@@ -31,6 +31,8 @@ def main():
         line = line.rstrip("\r\n")
         if line.startswith("#"):
             continue
+        # remove ' from start and end
+        line = line[1:-1]
         pods.extend(line.split(" "))
 
     if args.verbose:

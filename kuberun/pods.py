@@ -10,6 +10,7 @@ def getpodnames():
         line = line.rstrip("\r\n")
         if line.startswith("#"):
             continue
+        line = line[1:-1]
         pods = line.split(" ")
         results.extend(pods)
     return results
