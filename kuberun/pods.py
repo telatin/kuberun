@@ -10,7 +10,8 @@ def getpodnames():
         line = line.rstrip("\r\n")
         if line.startswith("#"):
             continue
-        results.append(line)
+        pods = line.split(" ")
+        results.extend(pods)
     return results
 
 def makepodname(name="kuberun-"):
