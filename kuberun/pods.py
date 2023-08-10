@@ -4,7 +4,7 @@ import subprocess
 def getpodnames():
     #cmd = ["kubectl", "get, "all"]
     results = []
-    cmd = ["kubectl", "get", "pods", "--all-namespaces", "-o", "jsonpath='{.items[*].metadata.name}'"]
+    cmd = ["kubectl", "get", "pods", "-o", "jsonpath='{.items[*].metadata.name}'"]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     for line in p.stdout:
         line = line.rstrip("\r\n")
@@ -13,6 +13,7 @@ def getpodnames():
         line = line[1:-1]
         pods = line.split(" ")
         results.extend(pods)
+   
     return results
 
 def makepodname(name="kuberun-"):
