@@ -21,7 +21,7 @@ def main():
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     args.add_argument('POD', type=str, nargs='+', help='Podnames')
-    args.add_argument("--verbose", action="store_true", help="Verbose output"")
+    args.add_argument("--verbose", action="store_true", help="Verbose output")
     args = args.parse_args()
 
     cmd = ["kubectl", "get", "pods", "-o", "jsonpath='{.items[*].metadata.name}'"]
