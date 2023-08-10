@@ -23,7 +23,7 @@ def main():
     
     args.add_argument('CMD', type=str, nargs='+', help='Command to execute')
     args.add_argument('-d', '--docker-container', type=str, help='Docker container (default: $(default)s)', default="ubuntu:latest")
-    args.add_argument('-n', '--name', type=str, help='Name of the pod (default: $(default)s)', default="kuberun")
+    args.add_argument('-n', '--name', type=str, help='Name of the pod (default: $(default)s)', default="mypod")
     args.add_argument('-m', '--memory', type=str, help='Memory limit (default: $(default)s)', default="1Gi")
     args.add_argument('-t', '--threads', type=int, default='1', help='Number of threads (default: %(default)s)')
     args.add_argument('-w', '--workdir', type=str,  help='Temporary directory (default: %(default)s)', default=currentwd)

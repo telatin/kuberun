@@ -24,26 +24,13 @@ def main():
     args.add_argument("--verbose", action="store_true", help="Verbose output")
     args = args.parse_args()
 
-    cmd = ["kubectl", "get", "pods", "-o", "jsonpath='{.items[*].metadata.name}'"]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    pods = []
-    for line in p.stdout:
-        line = line.rstrip("\r\n")
-        if line.startswith("#"):
-            continue
-        # remove ' from start and end
-        line = line[1:-1]
-        pods.extend(line.split(" "))
-
-    if args.verbose:
-        for pod in pods:
-            print(f" {pod}", file=sys.stderr)
-    for pod in args.POD:
-        if pod not in pods:
-            print(f"Pod {pod} not found", file=sys.stderr)
-        else:
-            print(f" * {pod}")
-
+    pods = getpodnames()
+    for pod in pods:
+        for query in args.POD:
+            if query in pod:
+                print(pod, " * ")
+            else:
+                print(pod)
 
     
 
