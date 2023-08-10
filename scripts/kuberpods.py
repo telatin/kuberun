@@ -34,7 +34,8 @@ def main():
         pods.extend(line.split(" "))
 
     if args.verbose:
-        print(f"Found {len(pods)} pods", file=sys.stderr)
+        for pod in pods:
+            print(f" {pod}", file=sys.stderr)
     for pod in args.POD:
         if pod not in pods:
             print(f"Pod {pod} not found", file=sys.stderr)
