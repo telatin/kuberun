@@ -18,7 +18,10 @@ def main():
 
     config_file = os.path.join(os.path.expanduser("~"), ".config", "kuberun.ini")
     config = loadconfig(config_file=config_file)
+    
     currentwd = os.getcwd()
+    # config working dir
+    script_dir = config.get("kuberun", "history_dir", fallback=currentwd)
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     
     args.add_argument('CMD', type=str, help='Command to execute or script to run')
@@ -26,7 +29,7 @@ def main():
     args.add_argument('-n', '--name', type=str, help='Name of the pod (default: %(default)s)', default="mypod")
     args.add_argument('-m', '--memory', type=str, help='Memory limit in Gb (default: %(default)s)', default="1Gi")
     args.add_argument('-t', '--threads', type=int, default='1', help='Number of threads (default: %(default)s)')
-    args.add_argument('-w', '--workdir', type=str,  help='Temporary directory (default: %(default)s)', default=currentwd)
+    args.add_argument('-w', '--cwd', type=str,  help='Script working directory (default: %(default)s)', default=currentwd)
     args.add_argument('-c', '--config', type=str,  help='Kuberun configuration file (default: %(default)s)', default=config_file)
     args.add_argument('--dry', action="store_true", help='Save YAML file but do not run')
     args.add_argument('--verbose', action="store_true", help='Verbose output')
@@ -39,8 +42,8 @@ def main():
     bash_str = '"bash"' if os.path.exists(args.CMD) else '"/bin/bash", "-c"'
     command  = f"bash '{os.path.abspath(args.CMD)}'" if os.path.exists(args.CMD) else args.CMD
 
-    if not os.path.exists(args.workdir):
-        print(f"Error: {args.workdir} does not exist", file=sys.stderr)
+    if not os.path.exists(args.cwd):
+        print(f"Error: expected working directory: {args.cwd} does not exist", file=sys.stderr)
         sys.exit(1)
 
 
@@ -54,12 +57,12 @@ def main():
         "command": command,
         "cpu": str(args.threads),
         "memory": args.memory,
-        "workdir": args.workdir,
+        "workdir": args.cwd,
     }
 
     template = k8s_template()
     result = template.substitute(values)
-    yaml_filename = makefilename(os.path.join(args.workdir, f"{name}"), ".yaml")
+    yaml_filename = makefilename(os.path.join(script_dir, f"{name}"), ".yaml")
     if args.verbose:
         print(f"Running:  {name}", file=sys.stderr)
         print(f"Saved to: {yaml_filename}", file=sys.stderr)
