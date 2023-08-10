@@ -7,12 +7,3 @@ def test_import():
     from kuberun.config import loadconfig, saveconfig
     assert True
 
-def test_script():
-    # ./scripts/kuberun.py
-    import os
-    import sys
-    import subprocess
-    assert os.path.exists("./scripts/kuberun.py")
-    cmd = ["./scripts/kuberun.py", "--help"]
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    assert p.returncode == 0

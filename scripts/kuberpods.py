@@ -20,7 +20,7 @@ def main():
     config = loadconfig(config_file=config_file)
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
-    args.add_argument('POD', type=str, nargs='+', help='Podnames')
+    args.add_argument('POD', type=str, nargs='*', help='Podnames')
     args.add_argument("--verbose", action="store_true", help="Verbose output")
     args.add_argument('-d', '--delete', help="Delete matching pods", action="store_true")
     args.add_argument('-n', '--dry-run', help="Do not actually delete matching pods", action="store_true")
@@ -29,7 +29,7 @@ def main():
     pods = getpodnames()
     cmds = []
     for pod in pods:
-        if pod == os.env("HOSTNAME"):
+        if pod == os.getenv("HOSTNAME"):
             # Do not delete the pod we are running in
             continue
         for query in args.POD:
