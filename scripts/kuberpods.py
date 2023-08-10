@@ -22,15 +22,42 @@ def main():
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     args.add_argument('POD', type=str, nargs='+', help='Podnames')
     args.add_argument("--verbose", action="store_true", help="Verbose output")
+    args.add_argument('-d', '--delete', help="Delete matching pods", action="store_true")
+    args.add_argument('-n', '--dry-run', help="Do not actually delete matching pods", action="store_true")
     args = args.parse_args()
 
     pods = getpodnames()
+    cmds = []
     for pod in pods:
         for query in args.POD:
-            if query in pod:
-                print(pod, " * ")
+            if query == pod:
+                
+                if args.delete:
+                    print(pod, " DELETE ")
+                    if not args.dry_run:
+                        cmd = ["kubectl", "delete", "pod", pod]
+                        cmds.append(cmd)
+                else:
+                    print(pod, " * ")
+            elif query in pod:
+                if args.delete:
+                    print(pod, " DELETE ")
+                    if not args.dry_run:
+                        cmd = ["kubectl", "delete", "pod", pod]
+                        cmds.append(cmd)
+                    
             else:
                 print(pod)
+    
+    if args.delete:
+        for cmd in cmds:
+            try:
+                subprocess.run(cmd)
+                print(f"Deleted pod: {cmd}")
+            except Exception as e:
+                print(e)
+                print("Error running: ", cmd)
+                
 
     
 

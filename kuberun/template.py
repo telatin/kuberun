@@ -2,7 +2,7 @@ from string import Template
 
 def k8s_template():
     template_string =  """apiVersion: v1
-kind: Job
+kind: Pod
 metadata:
   name: $name
 spec:
@@ -25,7 +25,7 @@ spec:
     - name: $container_name
       image: $docker
       workingDir: $workdir
-      command: ["/bin/bash", "-c"]
+      command: [$bash]
       args: ["$command"]
       resources:
         requests:

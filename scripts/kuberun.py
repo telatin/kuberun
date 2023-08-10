@@ -21,7 +21,7 @@ def main():
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     
-    args.add_argument('CMD', type=str, nargs='+', help='Command to execute')
+    args.add_argument('CMD', type=str, nargs='+', help='Command to execute or script to run')
     args.add_argument('-d', '--docker-container', type=str, help='Docker container (default: $(default)s)', default="ubuntu:latest")
     args.add_argument('-n', '--name', type=str, help='Name of the pod (default: $(default)s)', default="mypod")
     args.add_argument('-m', '--memory', type=str, help='Memory limit (default: $(default)s)', default="1Gi")
@@ -32,12 +32,15 @@ def main():
     args = args.parse_args()
 
 
+    bash_str = '"bash"' if os.path.exists(args.CMD) else '"/bin/bash", "-c"'
+    command  = f"bash '{os.path.abspath(args.CMD)}'" if os.path.exists(args.CMD) else args.CMD
     name = makepodname(name=args.name)
     values = {
+        "bash": bash_str,
         "name": name,
         "container_name": args.name,
         "docker": args.docker_container,
-        "command": " ".join(args.CMD),
+        "command": command,
         "cpu": str(args.threads),
         "memory": args.memory,
         "workdir": args.workdir,
@@ -45,15 +48,21 @@ def main():
 
     template = k8s_template()
     result = template.substitute(values)
-
+    yaml_filename = os.path.join(args.workdir, f"{name}.yaml")
     if args.verbose:
-        print(f"Running: {name}", file=sys.stderr)
-
+        print(f"Running:  {name}", file=sys.stderr)
+        print(f"Saved to: {yaml_filename}", file=sys.stderr)
     # Save YAML file (result) to config['workdir']/name.yaml
 
-    yaml_filename = os.path.join(args.workdir, f"{name}.yaml")
-    with open(yaml_filename, "w") as f:
-        f.write(result)
+    try:
+        with open(yaml_filename, "w") as f:
+            f.write(result)
+    except IOError:
+        print(f"Error: Could not write to {yaml_filename}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: while trying write to {yaml_filename}:\n  {e}", file=sys.stderr)
+        sys.exit(1)
 
     cmd = ["kubectl", "apply", "-f", yaml_filename]
     try:
