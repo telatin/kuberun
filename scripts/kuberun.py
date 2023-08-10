@@ -8,7 +8,7 @@ from kuberun.pods import getpodnames, makepodname
 from kuberun.config import loadconfig, saveconfig
 import tempfile
 from string import Template
-
+import subprocess
 
 
 
@@ -46,7 +46,21 @@ def main():
     template = k8s_template()
     result = template.substitute(values)
 
-    print(result)
+    if args.verbose:
+        print(f"Running: {name}", file=sys.stderr)
+
+    # Save YAML file (result) to config['workdir']/name.yaml
+
+    yaml_filename = os.path.join(args.workdir, f"{name}.yaml")
+    with open(yaml_filename, "w") as f:
+        f.write(result)
+
+    cmd = ["kubectl", "apply", "-f", yaml_filename]
+    try:
+        subprocess.check_call(cmd)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == '__main__':
