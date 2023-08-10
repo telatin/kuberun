@@ -21,10 +21,10 @@ def main():
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     
-    args.add_argument('CMD', type=str, required=True, help='Command to execute or script to run')
-    args.add_argument('-d', '--docker-container', type=str, help='Docker container (default: $(default)s)', default="ubuntu:latest")
-    args.add_argument('-n', '--name', type=str, help='Name of the pod (default: $(default)s)', default="mypod")
-    args.add_argument('-m', '--memory', type=str, help='Memory limit (default: $(default)s)', default="1Gi")
+    args.add_argument('CMD', type=str, help='Command to execute or script to run')
+    args.add_argument('-d', '--docker-container', type=str, help='Docker container (default: %(default)s)', default="ubuntu:latest")
+    args.add_argument('-n', '--name', type=str, help='Name of the pod (default: %(default)s)', default="mypod")
+    args.add_argument('-m', '--memory', type=str, help='Memory limit in Gb (default: %(default)s)', default="1Gi")
     args.add_argument('-t', '--threads', type=int, default='1', help='Number of threads (default: %(default)s)')
     args.add_argument('-w', '--workdir', type=str,  help='Temporary directory (default: %(default)s)', default=currentwd)
     args.add_argument('-c', '--config', type=str,  help='Kuberun configuration file (default: %(default)s)', default=config_file)
@@ -32,10 +32,20 @@ def main():
     args.add_argument('--verbose', action="store_true", help='Verbose output')
     args = args.parse_args()
 
+    # If memory is a number, add Gi
+    if args.memory.isdigit():
+        args.memory = f"{args.memory}Gi"
 
     bash_str = '"bash"' if os.path.exists(args.CMD) else '"/bin/bash", "-c"'
     command  = f"bash '{os.path.abspath(args.CMD)}'" if os.path.exists(args.CMD) else args.CMD
+
+    if not os.path.exists(args.workdir):
+        print(f"Error: {args.workdir} does not exist", file=sys.stderr)
+        sys.exit(1)
+
+
     name = makepodname(name=args.name)
+
     values = {
         "bash": bash_str,
         "name": name,
@@ -67,7 +77,6 @@ def main():
 
     cmd = ["kubectl", "apply", "-f", yaml_filename]
     if not args.dry:
-        
         try:
             subprocess.check_call(cmd)
         except subprocess.CalledProcessError as e:
