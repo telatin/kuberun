@@ -20,14 +20,29 @@ def main():
     config = loadconfig(config_file=config_file)
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
-    
+    args.add_argument('POD', type=str, nargs='+', help='Podnames')
+    args.add_argument("--verbose", action="store_true", help="Verbose output"")
+    args = args.parse_args()
+
     cmd = ["kubectl", "get", "pods", "-o", "jsonpath='{.items[*].metadata.name}'"]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    pods = []
     for line in p.stdout:
         line = line.rstrip("\r\n")
         if line.startswith("#"):
             continue
-        print(line)
+        pods.extend(line.split(" "))
+
+    if args.verbose:
+        print(f"Found {len(pods)} pods", file=sys.stderr)
+    for pod in args.POD:
+        if pod not in pods:
+            print(f"Pod {pod} not found", file=sys.stderr)
+        else:
+            print(f" * {pod}")
+
+
+    
 
 
 if __name__ == '__main__':
