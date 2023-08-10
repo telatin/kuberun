@@ -28,3 +28,18 @@ def makepodname(name="kuberun-"):
             return podname
         i += 1
     return None
+
+def makefilename(filename, ext):
+    # if filename does not exist, return filename
+    # else keep adding _1, _2, _3, etc. until filename does not exist
+    if not os.path.exists(filename + ext):
+        return filename
+    i = 1
+    leading_zeros = 4
+    while True:
+        num = str(i).zfill(leading_zeros)
+        newfilename = filename + "_" + num + ext
+        if not os.path.exists(newfilename):
+            return newfilename
+        i += 1
+    return None

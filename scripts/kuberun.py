@@ -4,8 +4,8 @@ import sys
 import argparse
 from kuberun.core import KuberRun
 from kuberun.template import k8s_template
-from kuberun.pods import getpodnames, makepodname
-from kuberun.config import loadconfig, saveconfig
+from kuberun.pods import getpodnames, makepodname, makefilename
+from kuberun.config import loadconfig
 import tempfile
 from string import Template
 import subprocess
@@ -59,7 +59,7 @@ def main():
 
     template = k8s_template()
     result = template.substitute(values)
-    yaml_filename = os.path.join(args.workdir, f"{name}.yaml")
+    yaml_filename = makefilename(os.path.join(args.workdir, f"{name}"), ".yaml")
     if args.verbose:
         print(f"Running:  {name}", file=sys.stderr)
         print(f"Saved to: {yaml_filename}", file=sys.stderr)
