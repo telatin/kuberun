@@ -29,6 +29,9 @@ def main():
     pods = getpodnames()
     cmds = []
     for pod in pods:
+        if pod == os.env("HOSTNAME"):
+            # Do not delete the pod we are running in
+            continue
         for query in args.POD:
             if query == pod:
                 
@@ -53,7 +56,6 @@ def main():
         for cmd in cmds:
             try:
                 subprocess.run(cmd)
-                print(f"Deleted pod: {cmd}")
             except Exception as e:
                 print(e)
                 print("Error running: ", cmd)

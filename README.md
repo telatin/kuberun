@@ -10,11 +10,11 @@ To use the `kuberun` tool, follow these steps:
 # To install it in a separate environment
 mamba create -n kuberun python=3.10
 conda activate kuberun
-pip install kuberun
+pip install -i https://test.pypi.org/simple/ kuberun
 ```
 
 
-##Usage
+## Usage
 
 The kuberun tool allows you to run a command using Kubernetes by creating and managing pods. Here's how to use it:
 

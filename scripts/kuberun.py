@@ -21,13 +21,14 @@ def main():
     currentwd = os.getcwd()
     args = argparse.ArgumentParser(description='Run a command using Kubernetes')
     
-    args.add_argument('CMD', type=str, nargs='+', help='Command to execute or script to run')
+    args.add_argument('CMD', type=str, required=True, help='Command to execute or script to run')
     args.add_argument('-d', '--docker-container', type=str, help='Docker container (default: $(default)s)', default="ubuntu:latest")
     args.add_argument('-n', '--name', type=str, help='Name of the pod (default: $(default)s)', default="mypod")
     args.add_argument('-m', '--memory', type=str, help='Memory limit (default: $(default)s)', default="1Gi")
     args.add_argument('-t', '--threads', type=int, default='1', help='Number of threads (default: %(default)s)')
     args.add_argument('-w', '--workdir', type=str,  help='Temporary directory (default: %(default)s)', default=currentwd)
     args.add_argument('-c', '--config', type=str,  help='Kuberun configuration file (default: %(default)s)', default=config_file)
+    args.add_argument('--dry', action="store_true", help='Save YAML file but do not run')
     args.add_argument('--verbose', action="store_true", help='Verbose output')
     args = args.parse_args()
 
@@ -65,12 +66,16 @@ def main():
         sys.exit(1)
 
     cmd = ["kubectl", "apply", "-f", yaml_filename]
-    try:
-        subprocess.check_call(cmd)
-    except subprocess.CalledProcessError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        sys.exit(1)
-
+    if not args.dry:
+        
+        try:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
+    else:
+        print("Dry run. Not running: ", " ".join(cmd))
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
