@@ -20,7 +20,8 @@ def makepodname(name="kuberun-"):
     names = getpodnames()
     i = 0
     leading_zeros = 4
-
+    if name not in names:
+        return name
     while True:
         num = str(i).zfill(leading_zeros)
         podname = name + num

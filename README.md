@@ -1,6 +1,18 @@
-# kuberun Command Line Tool
+# kuberun CLI
 
-The `kuberun` command line tool is designed to simplify running commands using Kubernetes. It helps you create and manage Kubernetes pods to execute commands in a containerized environment.
+The `kuberun` command line tool is designed to simplify running commands using Kubernetes. 
+It helps you create and manage Kubernetes pods to execute commands in a containerized environment.
+
+If you have:
+1. A Docker container with the program(s) you want to run
+2. A command to run... or a bash script to execute under the container
+
+With **kuberun** you can execute a Pod in Kubernetes and run the command in the container.
+
+```bash
+kuberun [resources] -d container:latest "run.py -1 file -2 file > output"
+```
+
 
 ## Installation
 
@@ -52,18 +64,19 @@ Here are a few examples of how to use the kuberun tool:
 kuberun 'echo "Hello, Kubernetes!" > data.txt'
 ```
 
-
-* Run a command in a specific Docker container:
-
-```bash
-kuberun -d busybox:latest ls -l /shared/team/data
-```
-
 * Specify pod name, memory limit, and threads:
 
 ```bash
 kuberun -n mypod -m 2Gi -t 2 --verbose bash -c "echo 'Hello from Kubernetes!'"
 ```
+
+* Run Kraken:
+
+```bash
+kuberun -m 16 -c 8 -d quay.io/biocontainers/kraken2:2.1.3--pl5321hdcf5f25_0 \
+ "kraken2 --threads 8 --db /shared/public/db/kraken2/k2_pluspf_16gb/ --report kraken.tsv --paired sample1_R1.fastq.gz sample1_R2.fastq.gz > /dev/null"
+```
+
 
 ## Configuration
 

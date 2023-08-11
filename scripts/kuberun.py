@@ -6,9 +6,16 @@ from kuberun.core import KuberRun
 from kuberun.template import k8s_template
 from kuberun.pods import getpodnames, makepodname, makefilename
 from kuberun.config import loadconfig
-import tempfile
 from string import Template
 import subprocess
+import pkg_resources
+
+def print_version():
+    try:
+        version = pkg_resources.get_distribution("your_package_name").version
+        print(f"Version: {version}")
+    except pkg_resources.DistributionNotFound:
+        print("Version information not available.")
 
 
 
@@ -33,8 +40,12 @@ def main():
     args.add_argument('-c', '--config', type=str,  help='Kuberun configuration file (default: %(default)s)', default=config_file)
     args.add_argument('--dry', action="store_true", help='Save YAML file but do not run')
     args.add_argument('--verbose', action="store_true", help='Verbose output')
+    args.add_argument('--version', action="store_true", help='Print version and exit')
     args = args.parse_args()
 
+    if args.version:
+        print_version()
+        sys.exit(0)
     # If memory is a number, add Gi
     if args.memory.isdigit():
         args.memory = f"{args.memory}Gi"
@@ -64,8 +75,8 @@ def main():
     result = template.substitute(values)
     yaml_filename = makefilename(os.path.join(script_dir, f"{name}"), ".yaml")
     if args.verbose:
-        print(f"Running:  {name}", file=sys.stderr)
-        print(f"Saved to: {yaml_filename}", file=sys.stderr)
+        print(f"Running pod:  {name}", file=sys.stderr)
+        print(f"Saved to   : {yaml_filename}", file=sys.stderr)
     # Save YAML file (result) to config['workdir']/name.yaml
 
     try:
@@ -86,7 +97,7 @@ def main():
             print(f"Error: {e}", file=sys.stderr)
             sys.exit(1)
     else:
-        print("Dry run. Not running: ", " ".join(cmd))
+        print("Dry run. Not running:\n", " ".join(cmd))
         sys.exit(0)
 
 if __name__ == '__main__':
